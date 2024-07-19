@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: fmylink-spring
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fmylink_spring
+    username: postgres
+    password: ''
+  servlet:
+    multipart:
+      max-file-size: 10MB
+server:
+  error:
+    include-message: always
+security:
+  jwt:
+    secret-key: cbe59678b19b6d805cd67c90ad71057dafc61a3531d89533f37b9749d2d5b99681904824102fd5c79c9b784beff83d8d507c9f3e47e9c0f5d2d19a03a339848f
+    expiration-time: 3600000
