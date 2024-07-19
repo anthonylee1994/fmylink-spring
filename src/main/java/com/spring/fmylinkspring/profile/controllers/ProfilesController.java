@@ -30,9 +30,7 @@ public class ProfilesController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
-        var existingProfile = profileRepository.findByUserId(currentUser.id).orElse(null);
-
-        if (existingProfile != null) throw new BadRequestException("Profile already exists");
+        if (profileRepository.existsByUserId(currentUser.id)) throw new BadRequestException("Profile already exists");
 
         var profile = new Profile();
         profile.username = profileDto.username;
@@ -44,23 +42,20 @@ public class ProfilesController {
 
     @GetMapping("/profile")
     public ResponseEntity<Profile> getProfile(@AuthenticationPrincipal User currentUser) throws BadRequestException {
-        Profile profile = profileRepository.findByUserId(currentUser.id).orElse(null);
-
-        if (profile == null) throw new BadRequestException("Profile not found");
+        Profile profile = profileRepository.findByUserId(currentUser.id).orElseThrow(() -> new BadRequestException("Profile not found"));
 
         return ResponseEntity.ok(profile);
     }
 
     @GetMapping("/profile/{username}")
-    public ResponseEntity<Profile> getProfileByUsername(@PathVariable String username) {
-        Profile profile = profileRepository.findByUsername(username).orElseThrow();
-
+    public ResponseEntity<Profile> getProfileByUsername(@PathVariable String username) throws BadRequestException {
+        Profile profile = profileRepository.findByUsername(username).orElseThrow(() -> new BadRequestException("Profile not found"));
         return ResponseEntity.ok(profile);
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<Profile> updateProfile(@AuthenticationPrincipal User currentUser, @Valid @RequestBody UpdateProfileDto profileDto) {
-        Profile profile = profileRepository.findByUserId(currentUser.id).orElseThrow();
+    public ResponseEntity<Profile> updateProfile(@AuthenticationPrincipal User currentUser, @Valid @RequestBody UpdateProfileDto profileDto) throws BadRequestException {
+        Profile profile = profileRepository.findByUserId(currentUser.id).orElseThrow(() -> new BadRequestException("Profile not found"));
 
         if (profileDto.username != null) profile.username = profileDto.username;
         if (profileDto.avatarUrl != null) profile.avatarUrl = profileDto.avatarUrl;
